@@ -14,18 +14,13 @@ In addtion, you can see the FULL CODE in the "run_analysis.R", and have a look a
 
 Please make sure you have been in the following condition before you run the function.
  
-* unzip the "zip", got the **UCI HAR Dataset** folder in the same directory as the "run_analysis.R". And, DO NOT SET THE DIRECTORY INTO THE FOLER. 
+* unzip the "zip", got the **UCI HAR Dataset** folder in the same directory as the "run_analysis.R". (If you didn't download the file, the script will download it for you.) And, DO NOT SET THE DIRECTORY INTO THE FOLER. 
 * set the working directery with `setwd()` to make sure the directory is where the code and datast folder are.
 * package "dplyr" is needed, please make sure that you have installed this package. If not, you can use `install.packages("dplyr")` to get it.
 
 Enjoy yourself !
 
 ## coding analysis
-
-The aim of the function `run_analysis()` is to make a tidy data set with the raw data in the *UCI HAR Dataset* folder.
-
-
-So, Let's begin.
 
 #### README, the very first step to begin with
 
@@ -42,9 +37,9 @@ What's more, I opened those file with Notepad++, obseved them again and again.Th
 
 At first, I got no idea where to start, although I have read through the dissussion forum. It is not until I read almost every table into the workspace and check their dimension, did I find the right way to tidy up the data.
 
-	> dim(X_test)
+	> dim(x_test)
 	[1] 2947  561
-	> dim(X_train)
+	> dim(x_train)
 	[1] 7352  561
 	> dim(features)
 	[1] 561   2
@@ -52,9 +47,9 @@ At first, I got no idea where to start, although I have read through the dissuss
  
 As we can see above, the "561" combinded these data together.
 
-	> dim(Y_test)
+	> dim(y_test)
 	[1] 2947    1
-	> dim(Y_train)
+	> dim(y_train)
 	[1] 7352    1
 	> dim(subject_test)
 	[1] 2947    1
@@ -68,23 +63,23 @@ So I draw a draft to decide how to combind the data together.
 
 		|Groups |	Activity |	Subject |  		{features}	  |	
 	---------------------------------------------------------
-		|		|	{Y_...}	 |	  		|		561 col		  |
+		|		|	{y_...}	 |	  		|		561 col		  |
 	--------------------------------------------------------		
 		|test	|	Walking	 |		1	|					  |
-	A	|test	|	Walking  |		2	|		{X_test}   	  |
+	A	|test	|	Walking  |		2	|		{x_test}   	  |
 		|...	|	 ...	 |			|	  (2947*561)	  |
 		|test	|			 |			|					  |
 	---------------------------------------------------------
 		|train	|			 |			|					  |
-		|train	|			 |			|		{X_train}	  |
+		|train	|			 |			|		{x_train}	  |
 	B	|...	|			 |			|	 (7352*561)		  |
 		|train	| 			 |			|					  |
 
-As we can see above, the largest data is the X_..., so I use these two X_... as the bas to create my dataset.
+As we can see above, the largest data is the x_..., so I use these two x_... as the bas to create my dataset.
 
 The "Groups" column in the first row finally deleted by me, because I don't think it necessary to be in the final dataset.
 
-The Activity column have a closed relationship with the activity_labels and the Y_... data. Although I plan to use `merge` to combine them at first, I chose to use the for loop at alst because I'm more familiar with the for loop. (Anyway, the TA have also said that it doesn't matter what way we used.)
+The Activity column have a closed relationship with the activity_labels and the y_... data. Although I plan to use `merge` to combine them at first, I chose to use the for loop at alst because I'm more familiar with the for loop. (Anyway, the TA have also said that it doesn't matter what way we used.)
 
 The subject is not simply 30*6, or how could it be 10000+ rows? So it need to be deal with something (the mean function, with grouped dataset)
 
@@ -132,9 +127,7 @@ FINISHED !! CHEERED !!
 #### make.names
 Before using this function, the error occurs when I run the select() function
 
-	> selected <- select(whole_data, 
-                         matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|std)",
-                                 ignore.case = FALSE))
+	> selected <- select(whole_data, matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|(std)+", ignore.case = FALSE))
 
 	Error: found duplicated column name
 
@@ -149,7 +142,7 @@ The reason is :
 
 As mentioned aboved, I used this style of matches to select the columns,which I got from the discussion forum.
 
-	matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|std)"
+	matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|(std)+"
 
 #### summarize_each()
 
@@ -177,4 +170,4 @@ So, DON'T FORGET THE EXAMPLES FOREVER.(I have always done this ...)
 
 THANKS FOR YOUR MARKING :)
 
-2015/3/22 1:05:16 
+

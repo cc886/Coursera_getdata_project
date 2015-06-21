@@ -1,146 +1,113 @@
-run_analysis <- function(){
-        
-       
-        
-        library(dplyr)
-        ######################################    
-        #  read data in the UCI HAR Dataset ##
-        ######################################
-        
-        dir_root <- getwd()
-        
-        setwd("UCI HAR Dataset")
-        dir_data <- getwd()
-        
 
-        features <- tbl_df(read.table("features.txt"))
-        
-        
-        
- 
-        #########################################
-        ## read data in the test & train folder##
-        #########################################
-        # go into test
-        setwd("test")
-        X_test <- tbl_df(read.table("X_test.txt"))
-        Y_test <- tbl_df(read.table("y_test.txt")) 
-        subject_test <- tbl_df(read.table("subject_test.txt"))
+# setwd("D:\\STUDY\\Coursera\\JH_series\\3_getdata\\project\\new")
 
-        
-        #setwd("Inertial Signals")
-        
-        #test_files <- list.files()
-        
-        #body_acc_x_test <- read.table("body_acc_x_test.txt")
-        #body_acc_y_test <- read.table("body_acc_y_test.txt")
-        #body_acc_z_test <- read.table("body_acc_z_test.txt")
-        #body_gyro_x_test <- read.table("body_gyro_x_test.txt")
-        #body_gyro_y_test <- read.table("body_gyro_y_test.txt")
-        #body_gyro_z_test <- read.table("body_gyro_z_test.txt")
-        #total_acc_x_test <- read.table("total_acc_x_test.txt")
-        #total_acc_y_test <- read.table("total_acc_y_test.txt")
-        #total_acc_z_test <- read.table("total_acc_z_test.txt")
-        
-        
-        
-        
-        
-        # go into train
-        setwd(dir_data)
-        setwd("train")
-        X_train <- tbl_df(read.table("X_train.txt"))
-        #The originial data is indeed the 'y', but not the 'Y'
-        Y_train <- tbl_df(read.table("y_train.txt"))
-        subject_train <- tbl_df(read.table("subject_train.txt"))
-        
-        
-        #setwd("Inertial Signals")
-        
-        #train_files <- list.files()
-        
-        #body_acc_x_train <- read.table("body_acc_x_train.txt")
-        #body_acc_y_train <- read.table("body_acc_y_train.txt")
-        #body_acc_z_train <- read.table("body_acc_z_train.txt")
-        #body_gyro_x_train <- read.table("body_gyro_x_train.txt")
-        #body_gyro_y_train <- read.table("body_gyro_y_train.txt")
-        #body_gyro_z_train <- read.table("body_gyro_z_train.txt")
-        #total_acc_x_train <- read.table("total_acc_x_train.txt")
-        #total_acc_y_train <- read.table("total_acc_y_train.txt")
-        #total_acc_z_train <- read.table("total_acc_z_train.txt")
-        
-        
-        # GO BACK!!!
-        setwd(dir_root)
-        
-        # change the Y_test series numbers to label names
-        for(i in 1 : length(Y_test$V1)){
-                if (Y_test$V1[i] == 1) {Y_test$V2[i] <- "WALKING"}
-                if (Y_test$V1[i] == 2) {Y_test$V2[i] <- "WALKING_UPSTAIRS"}
-                if (Y_test$V1[i] == 3) {Y_test$V2[i] <- "WALKING_DOWNSTAIRS"}
-                if (Y_test$V1[i] == 4) {Y_test$V2[i] <- "SITTING"}
-                if (Y_test$V1[i] == 5) {Y_test$V2[i] <- "STANDING"}
-                if (Y_test$V1[i] == 6) {Y_test$V2[i] <- "LAYING"}               
-        }
-        
-        for(i in 1 : length(Y_train$V1)){
-                if (Y_train$V1[i] == 1) {Y_train$V2[i] <- "WALKING"}
-                if (Y_train$V1[i] == 2) {Y_train$V2[i] <- "WALKING_UPSTAIRS"}
-                if (Y_train$V1[i] == 3) {Y_train$V2[i] <- "WALKING_DOWNSTAIRS"}
-                if (Y_train$V1[i] == 4) {Y_train$V2[i] <- "SITTING"}
-                if (Y_train$V1[i] == 5) {Y_train$V2[i] <- "STANDING"}
-                if (Y_train$V1[i] == 6) {Y_train$V2[i] <- "LAYING"}               
-        }
-        
-        
-        test_data_with_group_name <- cbind(Groups = "test", 
-                                           Activity = Y_test$V2, 
-                                           Subject = subject_test, 
-                                           X_test)
-        
-        
-        
-        
-        train_data_with_group_name <- cbind(Groups = "train", 
-                                            Activity = Y_train$V2, 
-                                            Subject = subject_train, 
-                                            X_train)
-        
-        
-        
-        ######################################       
-        ##### deal with the whole data    ####
-        ######################################
-        
-        whole_data <- rbind.data.frame(test_data_with_group_name, 
-                                       train_data_with_group_name)
-        
-        colnames(whole_data) <- c("Groups", "Activity", "Subject", as.character(features$V2)) 
-       
-        
-        
-        # the make.name() function is used to avoid the error:duplicated column. 
-        valid_column_names <- make.names(names=names(whole_data), unique=TRUE, allow_ = TRUE)
-        names(whole_data) <- valid_column_names
-        
-        
-        selected <- select(whole_data, 
-                           matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|(std)+",
-                                   ignore.case = FALSE))
-        
-       
-        
-
-
-        grouped <- group_by(selected, Activity, Subject)
-        
-        complete <- summarise_each(grouped, funs(mean), -(Groups : Subject))
-        
-        write.table(complete, file = "tidy_data.txt")
-        
-
-
+################################
+##### Download the data ########
+################################
+if(!file.exists("UCI HAR Dataset")) ## check the directory
+{
+        if(!file.exists("getdata_projectfiles_UCI HAR Dataset.zip"))
+        {
+                download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", 
+                              destfile = "./getdata_projectfiles_UCI HAR Dataset.zip")
+        } 
+        unzip("./getdata_projectfiles_UCI HAR Dataset.zip")
 }
 
+############################
+#### Load the data #########
+############################
+rootdir <- getwd()
+setwd("UCI HAR Dataset")
+UCIdir <- getwd()
+
+# # Get labels
+# label <- read.table("activity_labels.txt", header = FALSE, sep = " ")
+
+# Get features
+features <- read.table("features.txt", header = FALSE)
+
+# Read in " train" data
+setwd("train")
+message("Reading in the large 'X_train' file, please wait...")
+x_train <- read.table("X_train.txt", header = FALSE)
+y_train <- read.table("y_train.txt", header = FALSE)
+subject_train <- read.table("subject_train.txt", header = FALSE)
+
+# Read in " test" data
+setwd(UCIdir)
+setwd("test")
+message("Reading in the large 'X_test file, please wait...")
+x_test <- read.table("X_test.txt", header = FALSE)
+y_test <- read.table("y_test.txt", header = FALSE)
+subject_test <- read.table("subject_test.txt", header = FALSE)
+
+
+
+##########################
+### merge the data########
+##########################
+
+# # add labels to the data ######### XXXXXXXXX   #### use merge is not right here....
+# ytrain_lab <- merge(y_train, label, by.x = "V1", by.y = "V1")
+# 
+# ytest_lab <- merge(y_test, label, by.x = "V1", by.y = "V1")
+
+
+
+# change the y_test series numbers to label names
+for(i in 1 : length(y_test$V1)){
+        if (y_test$V1[i] == 1) {y_test$V2[i] <- "WALKING"}
+        if (y_test$V1[i] == 2) {y_test$V2[i] <- "WALKING_UPSTAIRS"}
+        if (y_test$V1[i] == 3) {y_test$V2[i] <- "WALKING_DOWNSTAIRS"}
+        if (y_test$V1[i] == 4) {y_test$V2[i] <- "SITTING"}
+        if (y_test$V1[i] == 5) {y_test$V2[i] <- "STANDING"}
+        if (y_test$V1[i] == 6) {y_test$V2[i] <- "LAYING"}               
+}
+
+for(i in 1 : length(y_train$V1)){
+        if (y_train$V1[i] == 1) {y_train$V2[i] <- "WALKING"}
+        if (y_train$V1[i] == 2) {y_train$V2[i] <- "WALKING_UPSTAIRS"}
+        if (y_train$V1[i] == 3) {y_train$V2[i] <- "WALKING_DOWNSTAIRS"}
+        if (y_train$V1[i] == 4) {y_train$V2[i] <- "SITTING"}
+        if (y_train$V1[i] == 5) {y_train$V2[i] <- "STANDING"}
+        if (y_train$V1[i] == 6) {y_train$V2[i] <- "LAYING"}               
+}
+
+# rename
+names(subject_test) <- "Subject"
+names(subject_train) <- "Subject"
+names(x_test) <- features[,2]
+names(x_train) <- features[,2]
+
+
+test_data <- cbind.data.frame(Groups = "test", Subject = subject_test, Activity = y_test[,2], x_test)
+train_data <- cbind.data.frame(Groups = "train", Subject = subject_train, Activity = y_train[,2], x_train)
+
+whole_data <- rbind.data.frame(test_data, train_data)
+
+##################################
+#######  Subset the data   #######
+##################################
+
+
+library(dplyr)
+
+### !!!!!!!!! make.names() function, make it possible to select columns with data.frame "names")
+names(whole_data) <- make.names(names=names(whole_data), unique=TRUE, allow_ = TRUE)
+
+selected <- select(whole_data, matches("(Groups)+|(Activity)+|(Subject)+|(mean)+|(std)+", ignore.case = FALSE))
+
+# Group the data and get the mean of each subjects for their activities
+grouped <- group_by(selected, Subject, Activity)   
+tidy <- summarise_each(grouped, funs(mean), -(Groups : Subject))
+
+# Save the names of the data frame [TO WRITE THE CODE BOOK]
+NAMES <- names(tidy)
+write.table(COl, file = "names.txt", row.names = FALSE, col.names = FALSE)
+
+# write the txt file
+setwd(rootdir)
+write.table(tidy, file = "tidy_data.txt", row.names = FALSE, col.names = FALSE)
 
 
